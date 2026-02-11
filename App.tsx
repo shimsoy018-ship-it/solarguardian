@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Rocket, RotateCcw, Play } from 'lucide-react';
+import { RotateCcw, Play, Stars } from 'lucide-react';
 import StarBackground from './components/StarBackground';
 import CharacterDisplay from './components/CharacterDisplay';
 import Effects from './components/Effects';
+import CharacterIcon from './components/CharacterIcon';
 import { QUIZ_DATA } from './data/quizData';
 import { GameStatus } from './types';
 
@@ -36,7 +38,6 @@ const App: React.FC = () => {
       setFeedback('incorrect');
     }
 
-    // Delay for animation and feedback reading
     setTimeout(() => {
       setFeedback(null);
       setIsProcessing(false);
@@ -54,80 +55,81 @@ const App: React.FC = () => {
       <StarBackground />
       <Effects type={feedback} />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 pb-32 z-10 w-full max-w-4xl mx-auto">
         
         <AnimatePresence mode="wait">
-          {/* INTRO SCREEN */}
           {status === 'intro' && (
             <motion.div 
               key="intro"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="text-center bg-space-800/80 backdrop-blur-md p-8 rounded-3xl border border-white/10 shadow-2xl max-w-lg w-full"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              className="text-center bg-space-800/80 backdrop-blur-md p-10 rounded-[3rem] border border-white/10 shadow-2xl max-w-lg w-full"
             >
-              <div className="mb-6 flex justify-center">
-                 <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-600 animate-pulse flex items-center justify-center shadow-[0_0_30px_rgba(251,146,60,0.6)]">
-                    <Rocket size={48} className="text-white" />
-                 </div>
+              <div className="mb-8 flex justify-center">
+                 <CharacterIcon stage="god" size={120} />
               </div>
-              <h1 className="text-4xl md:text-5xl font-display mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-500">
-                태양계 수호대:<br/>별의 탄생
+              <h1 className="text-5xl md:text-6xl font-display mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-orange-200">
+                태양계 수호대
               </h1>
-              <p className="text-gray-300 mb-8 leading-relaxed">
-                어둠의 세력이 태양계의 빛을 훔쳐갔습니다.<br/>
-                10개의 퀴즈를 풀어 지식을 되찾고,<br/>
-                당신의 캐릭터를 <strong>전설의 수호신</strong>으로 진화시키세요!
-              </p>
+              <p className="text-xl text-blue-300 font-display mb-6 tracking-widest uppercase">별의 탄생</p>
+              
+              <div className="text-gray-300 mb-10 leading-relaxed text-lg space-y-2">
+                <p>어둠의 세력이 태양계의 지식을 훔쳐갔습니다.</p>
+                <p>10개의 퀴즈를 풀어 별의 힘을 되찾고,</p>
+                <p>당신의 수호대를 <strong className="text-orange-400">전설의 수호신</strong>으로 진화시키세요!</p>
+              </div>
+
               <button 
                 onClick={startGame}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 rounded-xl text-xl font-bold transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                className="w-full py-5 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-400 hover:to-yellow-400 rounded-2xl text-2xl font-display transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(251,146,60,0.4)] flex items-center justify-center gap-3"
               >
-                <Play fill="currentColor" /> 모험 시작하기
+                <Play fill="currentColor" size={28} /> 모험 시작하기
               </button>
             </motion.div>
           )}
 
-          {/* GAMEPLAY SCREEN */}
           {status === 'playing' && (
             <motion.div
               key={`q-${currentQIndex}`}
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
-              className="w-full max-w-2xl"
+              className="w-full max-w-3xl"
             >
-              {/* Progress Bar (Top) */}
-              <div className="flex justify-between items-center mb-6 px-2">
-                <span className="text-cyan-300 font-display text-xl">Mission {currentQIndex + 1} / {QUIZ_DATA.length}</span>
-                <span className="bg-white/10 px-3 py-1 rounded-full text-sm">현재 점수: {score}</span>
+              <div className="flex justify-between items-center mb-6 px-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 font-display border border-cyan-500/30">
+                    {currentQIndex + 1}
+                  </div>
+                  <span className="text-cyan-300 font-display text-2xl">Mission</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                  <Stars size={18} className="text-yellow-400" />
+                  <span className="font-bold">획득 점수: {score}</span>
+                </div>
               </div>
 
-              {/* Question Card */}
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 md:p-8 rounded-3xl shadow-2xl mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold mb-6 leading-normal break-keep">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-8 md:p-12 rounded-[2.5rem] shadow-2xl mb-6">
+                <h2 className="text-2xl md:text-3xl font-bold mb-10 leading-snug break-keep text-center">
                   {currentQuestion.question}
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {currentQuestion.options.map((option, idx) => (
                     <motion.button
                       key={idx}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.03, y: -2 }}
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => handleAnswer(option)}
                       disabled={isProcessing}
-                      className="p-4 rounded-xl text-left text-lg font-medium transition-all
-                        bg-gradient-to-br from-indigo-900/50 to-purple-900/50 hover:from-indigo-600 hover:to-purple-600
-                        border border-white/10 hover:border-cyan-300/50 shadow-lg group relative overflow-hidden"
+                      className="p-5 rounded-2xl text-left text-lg font-medium transition-all
+                        bg-white/5 hover:bg-white/20 border border-white/10 hover:border-cyan-400/50 shadow-lg group flex items-center gap-4"
                     >
-                      <span className="relative z-10 flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold group-hover:bg-white/20 transition-colors">
-                          {String.fromCharCode(65 + idx)}
-                        </span>
-                        {option}
+                      <span className="w-10 h-10 shrink-0 rounded-xl bg-white/10 flex items-center justify-center text-sm font-bold group-hover:bg-cyan-500/40 transition-colors">
+                        {String.fromCharCode(65 + idx)}
                       </span>
+                      <span className="flex-1">{option}</span>
                     </motion.button>
                   ))}
                 </div>
@@ -135,34 +137,33 @@ const App: React.FC = () => {
             </motion.div>
           )}
 
-          {/* RESULT SCREEN */}
           {status === 'result' && (
             <motion.div
               key="result"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="w-full max-w-lg text-center"
+              className="w-full max-w-xl text-center"
             >
               <CharacterDisplay score={score} totalQuestions={QUIZ_DATA.length} isEndGame={true} />
 
               <div className="mt-8 space-y-4">
                 {score >= 8 ? (
-                  <div className="p-6 bg-green-500/20 border border-green-500/30 rounded-2xl">
-                    <h3 className="text-2xl font-display text-green-300 mb-2">🎉 임무 완수!</h3>
-                    <p className="text-gray-200">태양계에 평화가 찾아왔습니다!<br/>당신은 진정한 수호자입니다.</p>
+                  <div className="p-8 bg-orange-500/20 border border-orange-500/30 rounded-3xl shadow-[0_0_30px_rgba(249,115,22,0.15)]">
+                    <h3 className="text-3xl font-display text-orange-400 mb-3">🎉 전설의 귀환!</h3>
+                    <p className="text-blue-100 text-lg">태양계가 다시 밝게 빛나기 시작했습니다.<br/>당신은 진정한 우주의 수호자입니다!</p>
                   </div>
                 ) : (
-                  <div className="p-6 bg-red-500/20 border border-red-500/30 rounded-2xl">
-                    <h3 className="text-2xl font-display text-red-300 mb-2">⚠️ 임무 실패...</h3>
-                    <p className="text-gray-200">빛이 아직 부족합니다.<br/>다시 도전하여 8개 이상의 별을 모으세요!</p>
+                  <div className="p-8 bg-blue-500/20 border border-blue-500/30 rounded-3xl">
+                    <h3 className="text-3xl font-display text-blue-300 mb-3">🌌 아직은 성장이 필요합니다</h3>
+                    <p className="text-blue-100 text-lg">태양계의 어둠을 걷어내기엔 지식이 조금 부족해요.<br/>다시 도전하여 더 밝은 빛을 모아주세요!</p>
                   </div>
                 )}
 
                 <button 
                   onClick={startGame}
-                  className="w-full py-4 bg-white text-space-900 hover:bg-gray-200 rounded-xl text-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 mt-4"
+                  className="w-full py-5 bg-white text-space-900 hover:bg-blue-50 rounded-2xl text-2xl font-display transition-all shadow-xl flex items-center justify-center gap-3 mt-6 active:scale-95"
                 >
-                  <RotateCcw /> 다시 도전하기
+                  <RotateCcw size={24} /> 운명 개척하기 (재도전)
                 </button>
               </div>
             </motion.div>
@@ -170,7 +171,6 @@ const App: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Persistent Character Footer (Only show during play or intro, hidden in result as it's shown larger) */}
       {status !== 'result' && (
         <CharacterDisplay score={score} totalQuestions={QUIZ_DATA.length} />
       )}
