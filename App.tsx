@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, Play, Stars } from 'lucide-react';
+import { RotateCcw, Play, Stars, Volume2, VolumeX } from 'lucide-react';
 import StarBackground from './components/StarBackground';
 import CharacterDisplay from './components/CharacterDisplay';
 import Effects from './components/Effects';
@@ -15,8 +15,53 @@ const App: React.FC = () => {
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const currentQuestion = QUIZ_DATA[currentQIndex];
+
+  // BGM 자동 재생 시도 및 사용자 인터랙션 감지
+  useEffect(() => {
+    const playAudio = async () => {
+      if (audioRef.current && !isMuted) {
+        try {
+          await audioRef.current.play();
+        } catch (err) {
+          console.log("자동 재생이 차단되었습니다. 사용자 상호작용이 필요합니다.");
+        }
+      }
+    };
+
+    // 마운트 시 재생 시도
+    playAudio();
+
+    // 브라우저 정책으로 자동 재생 실패 시, 첫 클릭에 재생하도록 설정
+    const handleUserInteraction = () => {
+      playAudio();
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
+
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('keydown', handleUserInteraction);
+
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
+  }, [isMuted]);
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (audioRef.current) {
+      if (!isMuted) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(e => console.log("재생 실패:", e));
+      }
+    }
+  };
 
   const startGame = () => {
     setStatus('playing');
@@ -54,6 +99,23 @@ const App: React.FC = () => {
     <div className="min-h-screen text-white font-sans relative flex flex-col overflow-hidden">
       <StarBackground />
       <Effects type={feedback} />
+      
+      {/* Background Music Audio Element */}
+      {/* 우주 분위기의 무료 BGM 사용 */}
+      <audio 
+        ref={audioRef} 
+        loop 
+        src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=music-for-video-universe-space-114441.mp3" 
+      />
+
+      {/* Sound Toggle Button */}
+      <button
+        onClick={toggleMute}
+        className="fixed top-4 right-4 z-50 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/20 transition-all text-white shadow-lg"
+        aria-label={isMuted ? "소리 켜기" : "소리 끄기"}
+      >
+        {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+      </button>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4 pb-32 z-10 w-full max-w-4xl mx-auto">
         
