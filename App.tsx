@@ -33,10 +33,8 @@ const App: React.FC = () => {
       }
     };
 
-    // 마운트 시 재생 시도
     playAudio();
 
-    // 브라우저 정책으로 자동 재생 실패 시, 첫 클릭에 재생하도록 설정
     const handleUserInteraction = () => {
       playAudio();
       window.removeEventListener('click', handleUserInteraction);
@@ -68,11 +66,12 @@ const App: React.FC = () => {
     setCurrentQIndex(0);
     setScore(0);
     setFeedback(null);
+    setIsProcessing(false);
   };
 
   const handleAnswer = (option: string) => {
     if (isProcessing) return;
-    setIsProcessing(true);
+    setIsProcessing(true); // 입력 잠금
 
     const isCorrect = option === currentQuestion.answer;
 
@@ -82,26 +81,35 @@ const App: React.FC = () => {
     } else {
       setFeedback('incorrect');
     }
+    
+    // 자동 진행 setTimeout 제거됨. Effects 컴포넌트의 Next 버튼으로 진행.
+  };
 
-    setTimeout(() => {
-      setFeedback(null);
-      setIsProcessing(false);
-      
-      if (currentQIndex < QUIZ_DATA.length - 1) {
-        setCurrentQIndex(prev => prev + 1);
-      } else {
-        setStatus('result');
-      }
-    }, 1500);
+  const handleNextQuestion = () => {
+    setFeedback(null);
+    setIsProcessing(false); // 입력 잠금 해제
+
+    if (currentQIndex < QUIZ_DATA.length - 1) {
+      setCurrentQIndex(prev => prev + 1);
+    } else {
+      setStatus('result');
+    }
   };
 
   return (
     <div className="min-h-screen text-white font-sans relative flex flex-col overflow-hidden">
       <StarBackground />
-      <Effects type={feedback} />
+      
+      {/* Feedback Modal Overlay */}
+      <Effects 
+        type={feedback} 
+        correctAnswer={currentQuestion.answer}
+        explanation={currentQuestion.explanation}
+        onNext={handleNextQuestion}
+        isLastQuestion={currentQIndex === QUIZ_DATA.length - 1}
+      />
       
       {/* Background Music Audio Element */}
-      {/* 우주 분위기의 무료 BGM 사용 */}
       <audio 
         ref={audioRef} 
         loop 
@@ -184,7 +192,7 @@ const App: React.FC = () => {
                       whileHover={{ scale: 1.03, y: -2 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={() => handleAnswer(option)}
-                      disabled={isProcessing}
+                      disabled={isProcessing} // 피드백 창이 떠있는 동안 클릭 방지
                       className="p-5 rounded-2xl text-left text-lg font-medium transition-all
                         bg-white/5 hover:bg-white/20 border border-white/10 hover:border-cyan-400/50 shadow-lg group flex items-center gap-4"
                     >
